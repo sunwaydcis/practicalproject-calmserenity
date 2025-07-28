@@ -11,6 +11,7 @@ class Person (firstNameS: String, lastNameS: String):
   var postalCode = ObjectProperty[Int](1234)
   var city = new StringProperty("some city")
   var date = ObjectProperty[LocalDate](LocalDate.of(1999, 2, 21))
+  val birthday = ObjectProperty[LocalDate](LocalDate.of(1999, 2, 21))
 
 
 
