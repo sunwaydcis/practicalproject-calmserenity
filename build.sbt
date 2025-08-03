@@ -1,4 +1,3 @@
-
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
 ThisBuild / scalaVersion := "3.3.4"
@@ -19,12 +18,12 @@ lazy val root = (project in file("."))
       Seq("base", "controls", "fxml", "graphics", "media", "swing", "web")
         .map(m => "org.openjfx" % s"javafx-$m" % "21.0.4" classifier osName)
     },
-    libraryDependencies ++= Seq("org.scalafx" %% "scalafx" % "21.0.0-R32")
+    libraryDependencies ++= Seq("org.scalafx" %% "scalafx" % "21.0.0-R32"),
+
+    // --- ADDED DEPENDENCIES FOR DATABASE ---
+    libraryDependencies ++= Seq(
+      "org.scalikejdbc"   %% "scalikejdbc"      % "4.2.0",
+      "org.apache.derby"  %  "derby"            % "10.14.2.0",
+      "org.slf4j"         %  "slf4j-nop"        % "2.0.9"
+    )
   )
-//enable for sbt-assembly
-//assembly / assemblyMergeStrategy := {
-//  case PathList("META-INF", xs @ _*) => MergeStrategy.discard // Discard all META-INF files
-//  case PathList("reference.conf")    => MergeStrategy.concat  // Concatenate config files
-//  case PathList(ps @ _*) if ps.last.endsWith(".class") => MergeStrategy.first // Take the first class file
-//  case _ => MergeStrategy.first // Apply first strategy to any other file
-//}

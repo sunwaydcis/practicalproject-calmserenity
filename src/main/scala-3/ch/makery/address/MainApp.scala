@@ -1,6 +1,7 @@
 package ch.makery.address
 
 import ch.makery.address.model.Person
+import ch.makery.address.util.Database
 import ch.makery.address.view.PersonEditDialogController
 import javafx.fxml.FXMLLoader
 import scalafx.application.JFXApp3
@@ -13,12 +14,19 @@ import scalafx.stage.{Modality, Stage}
 
 object MainApp extends JFXApp3:
 
-  //window root pane
+  Database.setupDB()
+
+  ///Window Root Pane
   var roots: Option[scalafx.scene.layout.BorderPane] = None
+  //stylesheet
+  var cssResource = getClass.getResource("view/DarkTheme.css")
 
   val personData = new ObservableBuffer[Person]()
 
   override def start(): Unit =
+
+    personData ++= Person.getAllPersons
+    
     val rootResource = getClass.getResource("view/RootLayout.fxml")
     val loader= new FXMLLoader(rootResource)
     loader.load()
@@ -28,6 +36,7 @@ object MainApp extends JFXApp3:
     stage = new PrimaryStage():
       title = "AddressApp"
       scene = new Scene():
+        stylesheets = Seq(cssResource.toExternalForm)
         root = roots.get
         showPersonOverview()
 
@@ -37,17 +46,6 @@ object MainApp extends JFXApp3:
       loader.load()
       val roots = loader.getRoot[jfxs.layout.AnchorPane]
       this.roots.get.center = roots
-
-      personData += new Person("Hans", "Muster")
-      personData += new Person("Ruth", "Mueller")
-      personData += new Person("Heinz", "Kurz")
-      personData += new Person("Cornelia", "Meier")
-      personData += new Person("Werner", "Meyer")
-      personData += new Person("Lydia", "Kunz")
-      personData += new Person("Anna", "Best")
-      personData += new Person("Stefan", "Meier")
-      personData += new Person("Martin", "Mueller")
-
 
   def showPersonEditDialog(person: Person): Boolean =
     val resource = getClass.getResource("view/PersonEditDialog.fxml")
@@ -59,8 +57,10 @@ object MainApp extends JFXApp3:
     val dialog = new Stage():
       initModality(Modality.ApplicationModal)
       initOwner(stage)
-      scene = new Scene:
-        root = roots2
+      scene = new Scene():
+        stylesheets = Seq(cssResource.toExternalForm)
+        root = roots.get
+
 
     control.dialogStage = dialog
     control.person = person

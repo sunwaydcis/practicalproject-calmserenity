@@ -8,7 +8,7 @@ import scalafx.Includes.*
 import scalafx.beans.binding.Bindings
 import scalafx.scene.control.Alert
 import javafx.event.ActionEvent
-
+import scala.util.{Success, Failure}
 
 @FXML
 class PersonOverviewController():
@@ -78,34 +78,21 @@ class PersonOverviewController():
         birthdayLabel.text = ""
 
 
-  def handleDeletePerson(action: ActionEvent) =
+  def handleDeletePerson(action : ActionEvent) =
     val selectedIndex = personTable.selectionModel().selectedIndex.value
-    if (selectedIndex >= 0) then
-      personTable.items().remove(selectedIndex)
-    else
-      // Nothing selected.
-      val alert = new Alert(Alert.AlertType.Warning) { // This creates a scalafx.scene.control.Alert
-        initOwner(MainApp.stage)
-        title = "No Selection"
-        headerText = "No Person Selected"
-        contentText = "Please select a person in the table."
-      }
-      alert.showAndWait()
-
-   
-  def handleNewPerson(action: ActionEvent) =
-    val person = new Person("", "")
-    val okClicked = MainApp.showPersonEditDialog(person);
-    if (okClicked) then
-      MainApp.personData += person
-
-  def handleEditPerson(action: ActionEvent) =
     val selectedPerson = personTable.selectionModel().selectedItem.value
-    if (selectedPerson != null) then
-      val okClicked = MainApp.showPersonEditDialog(selectedPerson)
-
-      if (okClicked) then showPersonDetails(Some(selectedPerson))
-
+    if (selectedIndex >= 0) then
+      selectedPerson.save() match
+        case Success(x) =>
+          personTable.items().remove(selectedIndex);
+        case Failure(e) =>
+          val alert = new Alert(Alert.AlertType.Warning) {
+            initOwner(MainApp.stage)
+            title = "Failed to Save"
+            headerText = "Database Error"
+            contentText = "Database problem filed to save changes"
+          }
+            alert.showAndWait()
     else
       // Nothing selected.
       val alert = new Alert(Alert.AlertType.Warning) {
@@ -114,7 +101,53 @@ class PersonOverviewController():
         headerText = "No Person Selected"
         contentText = "Please select a person in the table."
       }
-      alert.showAndWait() 
+        .showAndWait()
+
+
+  def handleNewPerson(action: ActionEvent) =
+    val person = new Person("", "")
+    val okClicked = MainApp.showPersonEditDialog(person)
+    if (okClicked) then
+      person.save() match
+        case Success(x) =>
+          MainApp.personData += person
+        case Failure(e) =>
+          val alert = new Alert(Alert.AlertType.Warning) {
+            initOwner(MainApp.stage)
+            title = "Failed to Save"
+            headerText = "Database Error"
+            contentText = "Database problem filed to save changes"
+          }
+            alert.showAndWait()
+
+
+  def handleEditPerson(action: ActionEvent) =
+    val selectedPerson = personTable.selectionModel().selectedItem.value
+    if (selectedPerson != null) then
+      val okClicked = MainApp.showPersonEditDialog(selectedPerson)
+
+      if (okClicked) then
+        selectedPerson.save() match
+          case Success(x) =>
+            showPersonDetails(Some(selectedPerson))
+          case Failure(e) =>
+            val alert = new Alert(Alert.AlertType.Warning) {
+              initOwner(MainApp.stage)
+              title = "Failed to Save"
+              headerText = "Database Error"
+              contentText = "Database problem filed to save changes"
+            }
+              alert.showAndWait()
+    else
+      // Nothing selected.
+      val alert = new Alert(Alert.AlertType.Warning) {
+        initOwner(MainApp.stage)
+        title = "No Selection"
+        headerText = "No Person Selected"
+        contentText = "Please select a person in the table."
+      }
+        alert.showAndWait()
+
 
 
 
